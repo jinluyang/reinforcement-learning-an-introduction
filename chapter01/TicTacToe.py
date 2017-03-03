@@ -12,7 +12,7 @@ import numpy as np
 import pickle
 
 BOARD_ROWS = 3
-BOARD_COLS = 3
+BOARD_COLS = 3 #currently can't be changed
 BOARD_SIZE = BOARD_ROWS * BOARD_COLS
 
 class State:
