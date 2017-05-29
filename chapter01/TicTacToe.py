@@ -11,8 +11,8 @@ from __future__ import print_function
 import numpy as np
 import pickle
 
-BOARD_ROWS = 3
-BOARD_COLS = 3 #currently can't be changed
+BOARD_ROWS = 3 #2 or 3, 4 is too slow
+BOARD_COLS = BOARD_ROWS
 BOARD_SIZE = BOARD_ROWS * BOARD_COLS
 
 class State:
@@ -30,10 +30,10 @@ class State:
     def getHash(self):
         if self.hashVal is None:
             self.hashVal = 0
-            for i in self.data.reshape(BOARD_ROWS * BOARD_COLS):
+            for i in self.data.reshape(BOARD_ROWS * BOARD_COLS): #1*9 vector
                 if i == -1:
                     i = 2
-                self.hashVal = self.hashVal * 3 + i
+                self.hashVal = self.hashVal * 3 + i #i=1 or 2
         return int(self.hashVal)
 
     # determine whether a player has won the game, or it's a tie
@@ -57,11 +57,11 @@ class State:
             results[-1] += self.data[i, BOARD_ROWS - 1 - i]
 
         for result in results:
-            if result == 3:
+            if result == BOARD_ROWS:
                 self.winner = 1
                 self.end = True
                 return self.end
-            if result == -3:
+            if result == -BOARD_ROWS:
                 self.winner = -1
                 self.end = True
                 return self.end
@@ -101,6 +101,7 @@ class State:
             print(out)
         print('-------------')
 
+# recursively compute all the following states
 def getAllStatesImpl(currentState, currentSymbol, allStates):
     for i in range(0, BOARD_ROWS):
         for j in range(0, BOARD_COLS):
@@ -111,8 +112,8 @@ def getAllStatesImpl(currentState, currentSymbol, allStates):
                     isEnd = newState.isEnd()
                     allStates[newHash] = (newState, isEnd)
                     if not isEnd:
-                        getAllStatesImpl(newState, -currentSymbol, allStates)
-
+                        getAllStatesImpl(newState, -currentSymbol, allStates) #opponent's turn
+# use the function above to generate a dictionary of {hash:isend}
 def getAllStates():
     currentSymbol = 1
     currentState = State()
@@ -120,10 +121,10 @@ def getAllStates():
     allStates[currentState.getHash()] = (currentState, currentState.isEnd())
     getAllStatesImpl(currentState, currentSymbol, allStates)
     return allStates
-
+print('getting all states')
 # all possible board configurations
 allStates = getAllStates()
-
+print('all state ok')
 class Judger:
     # @player1: player who will move first, its chessman will be 1
     # @player2: another player with chessman -1
